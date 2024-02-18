@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 namespace Khalid.Core.Framework
 {
     public class AuthenticatedUserService<TUser, TDbContext> : IAuthenticatedUserService
-        where TUser : class, IEntity
+        where TUser : class, IUserEntity
         where TDbContext : DbContext
     {
         private IHttpContextAccessor HttpContextAccessor { get; }

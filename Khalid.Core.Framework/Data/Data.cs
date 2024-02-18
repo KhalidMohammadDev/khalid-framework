@@ -24,40 +24,40 @@ namespace Khalid.Core.Framework
         private void OnBeforeSaveChanges()
         {
             var userIdString = _serviceProvider.GetService<IHttpContextAccessor>()?.HttpContext?.Items["AuditTrailUserId"]?.ToString();
+            int? userId = null;
+            if (userIdString != null && int.TryParse(userIdString, out int userIdInt)) userId = userIdInt;
 
-            if (userIdString != null && int.TryParse(userIdString, out int userId))
+            ChangeTracker.DetectChanges();
+
+            //get all changes to add to audit table 
+            foreach (var entry in ChangeTracker.Entries())
             {
-                ChangeTracker.DetectChanges();
-
-                //get all changes to add to audit table 
-                foreach (var entry in ChangeTracker.Entries())
+                if (entry.State == EntityState.Modified || entry.State == EntityState.Added)
                 {
-                    if (entry.State == EntityState.Modified || entry.State == EntityState.Added)
+                    if (entry.Entity is IModificationEntity oEntity)
                     {
-                        if (entry.Entity is IModificationEntity oEntity)
-                        {
 
-                            switch (entry.State)
-                            {
-                                case EntityState.Added:
-                                    {
-                                        oEntity.CreateDate = DateTime.Now;
-                                        oEntity.LastUpdateDate = DateTime.Now;
-                                        oEntity.CreateByUserId = userId;
-                                        oEntity.LastUpdateByUserId = userId;
-                                        break;
-                                    }
-                                case EntityState.Modified:
-                                    {
-                                        Entry(oEntity).Property(x => x.CreateDate).IsModified = false;
-                                        Entry(oEntity).Property(x => x.CreateByUserId).IsModified = false;
-                                        oEntity.LastUpdateDate = DateTime.Now;
-                                        oEntity.LastUpdateByUserId = userId;
-                                        break;
-                                    }
-                            }
+                        switch (entry.State)
+                        {
+                            case EntityState.Added:
+                                {
+                                    oEntity.CreateDate = DateTime.Now;
+                                    oEntity.LastUpdateDate = DateTime.Now;
+                                    oEntity.CreateByUserId = userId;
+                                    oEntity.LastUpdateByUserId = userId;
+                                    break;
+                                }
+                            case EntityState.Modified:
+                                {
+                                    Entry(oEntity).Property(x => x.CreateDate).IsModified = false;
+                                    Entry(oEntity).Property(x => x.CreateByUserId).IsModified = false;
+                                    oEntity.LastUpdateDate = DateTime.Now;
+                                    oEntity.LastUpdateByUserId = userId;
+                                    break;
+                                }
                         }
                     }
+
 
                 }
             }
@@ -79,17 +79,5 @@ namespace Khalid.Core.Framework
 
 
 
-    public interface IModificationEntity
-    {
-        int Id { get; set; }
-
-        DateTime CreateDate { get; set; }
-
-        int CreateByUserId { get; set; }
-
-        DateTime LastUpdateDate { get; set; }
-
-        int LastUpdateByUserId { get; set; }
-    }
 
 }

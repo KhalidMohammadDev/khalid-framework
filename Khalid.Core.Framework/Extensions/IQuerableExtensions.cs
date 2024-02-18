@@ -11,6 +11,17 @@ using System.Threading.Tasks;
 namespace Khalid.Core.Framework
 {
 
+    public interface IModificationEntity : IEntity
+    {
+
+        DateTime CreateDate { get; set; }
+
+        int? CreateByUserId { get; set; }
+
+        DateTime LastUpdateDate { get; set; }
+
+        int? LastUpdateByUserId { get; set; }
+    }
     public interface IEntity
     {
         int Id { get; set; }
