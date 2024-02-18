@@ -36,10 +36,10 @@ namespace Khalid.Core.Framework
   [NotNull] this IServiceCollection services,
   [NotNull] IConfiguration configuration,
   string envirnomentName)
-            where TUser : class, IEntity
+            where TUser : class, IUserEntity
             where TDbContext : DbContext
         {
-            services.AddScoped<IAuthenticatedUserService, AuthenticatedUserService<TUser, TDbContext>>();
+            services.AddScoped<IAuthenticatedUserService, AuthenticatedUserService<IUserEntity, TDbContext>>();
 
             return services;
         }
