@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Tracing;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
@@ -12,8 +13,8 @@ using System.Threading.Tasks;
 
 namespace Khalid.Core.Framework
 {
-    public class AuthenticatedUserService<TUser, TDbContext> : IAuthenticatedUserService<TUser>
-        where TUser : class, IUser
+    public class AuthenticatedUserService<TUser, TDbContext> : IAuthenticatedUserService
+        where TUser : class, IEntity
         where TDbContext : DbContext
     {
         private IHttpContextAccessor HttpContextAccessor { get; }
@@ -28,9 +29,9 @@ namespace Khalid.Core.Framework
             HttpContextAccessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();
             DbContext = serviceProvider.GetRequiredService<TDbContext>();
         }
-        public TUser GetAuthenticatedUser()
+        public IUserEntity GetAuthenticatedUser()
         {
-            return HttpContextAccessor.HttpContext.Items["User"] as TUser;
+            return HttpContextAccessor.HttpContext.Items["User"] as IUserEntity;
         }
 
         public async Task<bool> TryAttachUserToContext()
@@ -142,28 +143,38 @@ namespace Khalid.Core.Framework
             return tokenStr;
         }
 
-        public bool HasPermission(params Enum[] roles)
+        public bool HasAnyPermission(params int[] permissions)
         {
-            var user = GetAuthenticatedUser();
-            return user != null &&
-            (!roles.Any() || roles.Any(s => user.Roles.Contains(s)));
+            return permissions.Any(r => GetAuthenticatedUser().UserRoles.Contains(r));
+        }
 
+        public TUser1 GetAuthenticatedUser<TUser1>() where TUser1 : IUserEntity
+        {
+            return (TUser1)GetAuthenticatedUser();
         }
     }
 
-
-    public interface IAuthenticatedUserService<TUser> where TUser : IUser
+    public interface IAuthenticatedUserService
     {
         string AttachUserToResponse(string userId);
-
-        TUser GetAuthenticatedUser();
-
         Task<bool> TryAttachUserToContext();
-        //void AttachWebUser(string userId);
+
         void DeAttachUser();
+
+        IUserEntity GetAuthenticatedUser();
+        TUser GetAuthenticatedUser<TUser>() where TUser : IUserEntity;
+
+        //void AttachWebUser(string userId);
 
         string GenerateJwtToken(string userId);
 
-        bool HasPermission(params Enum[] permission);
+        bool HasAnyPermission(params int[] permission);
     }
+
+    //public interface IAuthenticatedUserService<TUser> : IAuthenticatedUserMiddlewareService
+    //    where TUser : IUserEntity, new()
+    //{
+
+
+    //}
 }

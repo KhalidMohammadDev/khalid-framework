@@ -352,7 +352,6 @@ namespace Khalid.Core.Framework
 
             client.Port = this._port; //added by oday, to connect to gmail properly
             client.EnableSsl = EmailService.EmailConfiguration.EnableSsl;
-            
             await client.SendMailAsync(mail);
         }
 

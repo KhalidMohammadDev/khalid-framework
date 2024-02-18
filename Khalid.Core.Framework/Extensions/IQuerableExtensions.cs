@@ -11,20 +11,16 @@ using System.Threading.Tasks;
 namespace Khalid.Core.Framework
 {
 
-
-    public interface IUser : IEntity
-    {
-        Enum[] Roles { get; set; }
-
-    }
-
-
     public interface IEntity
     {
         int Id { get; set; }
 
     }
+    public interface IUserEntity : IEntity
+    {
+        List<int> UserRoles { get; }
 
+    }
     public interface IOrderedEntity
     {
         int Order { get; set; }
@@ -92,13 +88,13 @@ namespace Khalid.Core.Framework
                  .Where(m =>
                  {
                      var parameters = m.GetParameters().ToList();
-             //Put more restriction here to ensure selecting the right overload                
-             return parameters.Count == 2;//overload that has 2 parameters
-         }).Single();
+                     //Put more restriction here to ensure selecting the right overload                
+                     return parameters.Count == 2;//overload that has 2 parameters
+                 }).Single();
             //The linq's OrderBy<TSource, TKey> has two generic types, which provided here
             MethodInfo genericMethod = method
                  .MakeGenericMethod(entityType, propertyInfo.PropertyType);
-            
+
             /*Call query.OrderBy(selector), with query and selector: x=> x.PropName
               Note that we pass the selector as Expression to the method and we don't compile it.
               By doing so EF can extract "order by" columns and generate SQL for it.*/
