@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -16,7 +17,7 @@ namespace Khalid.Core.Framework
 
         private readonly IServiceProvider _serviceProvider;
 
-        public BaseDbContext(DbContextOptions<BaseDbContext> options, IServiceProvider serviceProvider) : base(options)
+        public BaseDbContext(IServiceProvider serviceProvider, DbContextOptions contextOptions) : base(contextOptions)
         {
             _serviceProvider = serviceProvider;
         }
