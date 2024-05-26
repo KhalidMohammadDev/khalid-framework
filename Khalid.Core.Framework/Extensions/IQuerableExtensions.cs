@@ -32,6 +32,11 @@ namespace Khalid.Core.Framework
         List<int> UserRoles { get; }
 
     }
+
+    public interface IAuthUserProvider
+    {
+        Task<IUserEntity> GetAsync(int id);
+    }
     public interface IOrderedEntity
     {
         int Order { get; set; }

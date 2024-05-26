@@ -32,13 +32,15 @@ namespace Khalid.Core.Framework
         }
 
 
-        public static IServiceCollection AddAuthService<TUser, TDbContext>(
+        public static IServiceCollection AddAuthService<TUser, TDbContext, TAuthUserProvider>(
   [NotNull] this IServiceCollection services,
   [NotNull] IConfiguration configuration,
   string envirnomentName)
             where TUser : class, IUserEntity
+            where TAuthUserProvider : class, IAuthUserProvider
             where TDbContext : DbContext
         {
+            services.AddScoped<IAuthUserProvider, TAuthUserProvider>();
             services.AddScoped<IAuthenticatedUserService, AuthenticatedUserService<IUserEntity, TDbContext>>();
 
             return services;

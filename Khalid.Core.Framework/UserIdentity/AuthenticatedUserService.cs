@@ -20,6 +20,8 @@ namespace Khalid.Core.Framework
         private IHttpContextAccessor HttpContextAccessor { get; }
         private TDbContext DbContext { get; }
 
+        private IAuthUserProvider AuthUserProvider { get; }
+
         private const string Secret = "a4c857c2834b4b32aa3b9c7df62c4d9ff14c96185d8e433b901aa1e25561bcf6d5793e41173c4ef6b909d0f9445f045c54ec16c5bb1e4ed785ac11de66e1a34b8fb1fa4b142e4cf9a3ed0905323bb10c";
         private const string AOUTH_KEY_NAME = "Auth";
         private const string ClaimName = "UserId";
@@ -28,6 +30,7 @@ namespace Khalid.Core.Framework
         {
             HttpContextAccessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();
             DbContext = serviceProvider.GetRequiredService<TDbContext>();
+            AuthUserProvider =  serviceProvider.GetRequiredService<IAuthUserProvider>();
         }
         public IUserEntity GetAuthenticatedUser()
         {
@@ -60,7 +63,7 @@ namespace Khalid.Core.Framework
                     var userId = int.Parse(jwtToken.Claims.First(x => x.Type == ClaimName).Value);
 
                     // attach user to context on successful jwt validation
-                    HttpContextAccessor.HttpContext.Items["User"] = await DbContext.Set<TUser>().FindAsync(userId);
+                    HttpContextAccessor.HttpContext.Items["User"] = await AuthUserProvider.GetAsync(userId);
                     HttpContextAccessor.HttpContext.Items["AuditTrailUserId"] = userId;
 
                     return true;
@@ -68,6 +71,7 @@ namespace Khalid.Core.Framework
             }
             catch
             {
+                throw;
                 // do nothing if jwt validation fails
                 // user is not attached to context so request won't have access to secure routes
             }
