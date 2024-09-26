@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -26,11 +27,17 @@ namespace Khalid.Core.Framework
         private const string AOUTH_KEY_NAME = "Auth";
         private const string ClaimName = "UserId";
 
-        public AuthenticatedUserService(IServiceProvider serviceProvider)
+        private readonly int TokenTimeoutInDays = 30;
+
+        public AuthenticatedUserService(IServiceProvider serviceProvider, IConfiguration configuration)
         {
             HttpContextAccessor = serviceProvider.GetRequiredService<IHttpContextAccessor>();
             DbContext = serviceProvider.GetRequiredService<TDbContext>();
-            AuthUserProvider =  serviceProvider.GetRequiredService<IAuthUserProvider>();
+            AuthUserProvider = serviceProvider.GetRequiredService<IAuthUserProvider>();
+
+            var expire = configuration.GetSection("Authorization")?.GetValue<int?>("TokenTimeoutInDays");
+
+            if (expire.HasValue) TokenTimeoutInDays = expire.Value;
         }
         public IUserEntity GetAuthenticatedUser()
         {
@@ -69,9 +76,10 @@ namespace Khalid.Core.Framework
                     return true;
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                throw;
+                Console.WriteLine(ex.Message);
+                //throw;
                 // do nothing if jwt validation fails
                 // user is not attached to context so request won't have access to secure routes
             }
@@ -110,7 +118,7 @@ namespace Khalid.Core.Framework
                 {
                     SameSite = SameSiteMode.None,
                     Secure = true,
-                    Expires = DateTime.UtcNow.AddDays(1)
+                    Expires = DateTime.UtcNow.AddDays(TokenTimeoutInDays)
                 });
             }
             else
@@ -119,7 +127,7 @@ namespace Khalid.Core.Framework
                 {
                     //SameSite = SameSiteMode.None,
                     //Secure = true,
-                    Expires = DateTime.UtcNow.AddDays(1)
+                    Expires = DateTime.UtcNow.AddDays(TokenTimeoutInDays)
                 });
             }
         }

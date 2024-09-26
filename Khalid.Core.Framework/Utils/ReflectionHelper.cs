@@ -24,10 +24,17 @@ namespace Khalid.Core.Framework
             return type.IsPrimitive || type == typeof(string) ||
                    type == typeof(decimal) || type == typeof(DateTime);
         }
-        public static List<string> GetReadablePropertyNames(Type type)
+        public static List<string> GetReadablePropertyNames(Type type, IEnumerable<string> ignorePorps = null)
         {
+            ignorePorps = ignorePorps ?? new List<string>();
             var readableProperties = type.GetProperties()
-                .Where(p => p.CanRead && p.GetGetMethod(true).IsPublic && !p.GetGetMethod(true).IsStatic && IsPrimitive(p.PropertyType))
+                .Where(p =>
+                    p.CanRead &&
+                    p.GetGetMethod(true).IsPublic &&
+                    !p.GetGetMethod(true).IsStatic &&
+                    IsPrimitive(p.PropertyType) &&
+                    !ignorePorps.Contains(p.Name)
+                    )
                 .Select(p => ConvertToTitleCase(p.Name))
                 .ToList();
 

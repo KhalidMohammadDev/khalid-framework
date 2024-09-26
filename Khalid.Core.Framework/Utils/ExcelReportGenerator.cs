@@ -83,14 +83,14 @@ namespace Khalid.Core.Framework
 
             };
         }
-        public static async Task<Stream> GetImportTemplate<T>()
+        public static async Task<Stream> GetImportTemplate<T>(IEnumerable<string> IgnoredProperties = null)
         {
-            return await GenerateExcelReport(ReflectionHelper.GetReadablePropertyNames(typeof(T)).ToList(), new List<T> { });
+            return await GenerateExcelReport(ReflectionHelper.GetReadablePropertyNames(typeof(T), IgnoredProperties).ToList(), new List<T> { });
         }
 
-        public static async Task<Stream> GenerateExcelReport<T>(List<T> data)
+        public static async Task<Stream> GenerateExcelReport<T>(List<T> data, IEnumerable<string> IgnoredProperties = null)
         {
-            return await GenerateExcelReport(ReflectionHelper.GetReadablePropertyNames(typeof(T)).ToList(), data);
+            return await GenerateExcelReport(ReflectionHelper.GetReadablePropertyNames(typeof(T), IgnoredProperties).ToList(), data);
         }
         public static async Task<Stream> GenerateExcelReport<T>(List<string> headers, List<T> data)
         {

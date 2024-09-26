@@ -41,7 +41,9 @@ namespace Khalid.Core.Framework
             where TDbContext : DbContext
         {
             services.AddScoped<IAuthUserProvider, TAuthUserProvider>();
-            services.AddScoped<IAuthenticatedUserService, AuthenticatedUserService<IUserEntity, TDbContext>>();
+            services.AddScoped<IAuthenticatedUserService>(s =>
+
+            new AuthenticatedUserService<IUserEntity, TDbContext>(s, configuration));
 
             return services;
         }

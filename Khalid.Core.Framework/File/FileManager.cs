@@ -100,7 +100,7 @@ namespace Khalid.Core.Framework
             return fileSubPath;
         }
 
-        public static async Task<List<string>> SaveMultiPartFiles(List<IFormFile> files, Enum type)
+        public static async Task<List<string>> SaveFile(List<IFormFile> files, Enum type)
         {
             List<string> filePaths = new List<string>();
 
@@ -122,12 +122,12 @@ namespace Khalid.Core.Framework
         {
             return await SaveFile(type, fileName, GetFileBytes(base64));
         }
-        public static async Task<string> SaveApiFile(Enum type, string fileName, string asdqqbase64, int index)
+        public static async Task<string> SaveFile(Enum type, string fileName, string asdqqbase64, int index)
         {
             var fileSubPath = "";
             try
             {
-                Random r = new Random();
+                //Random r = new Random();
                 string currentDate = DateTime.Now.ToString("yyyyMMddHHmmss");
                 fileSubPath = Path.Combine(type.ToString(), String.Format("{0}-{1}-{2}.{3}", fileName, currentDate, index, "jpeg"));
 
@@ -275,7 +275,7 @@ namespace Khalid.Core.Framework
         /// <param name="fileType"></param>
         /// <param name="files"></param>
         /// <returns></returns>
-        public static async Task<List<string>> SaveFiles(Enum fileType, List<FileModel> files)
+        public static async Task<List<string>> SaveFile(Enum fileType, List<FileModel> files)
         {
             List<string> filesSubPaths = new List<string>();
 
@@ -321,7 +321,7 @@ namespace Khalid.Core.Framework
             return false;
         }
 
-        public static async Task<List<string>> SaveFiles(Enum fileType, string fileName, List<string> files)
+        public static async Task<List<string>> SaveFile(Enum fileType, string fileName, List<string> files)
         {
             List<string> filesSubPaths = new List<string>();
             foreach (var file in files)
@@ -338,7 +338,7 @@ namespace Khalid.Core.Framework
             {
                 if (files[i] != "")
                 {
-                    filesSubPaths.Add(await FileManager.SaveApiFile(fileType, fileName, files[i], i + 1));
+                    filesSubPaths.Add(await FileManager.SaveFile(fileType, fileName, files[i], i + 1));
 
                 }
             }
@@ -365,7 +365,7 @@ namespace Khalid.Core.Framework
             // Save the new uploaded files
             if (newFiles != null && newFiles.Count > 0)
             {
-                newFilesPaths = newFilesPaths.Concat(await FileManager.SaveFiles(fileType, newFiles)).ToList();
+                newFilesPaths = newFilesPaths.Concat(await FileManager.SaveFile(fileType, newFiles)).ToList();
             }
 
             return newFilesPaths != null && newFilesPaths.Count > 0 ? string.Join("|", newFilesPaths) : null;
