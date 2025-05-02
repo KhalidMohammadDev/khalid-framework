@@ -26,7 +26,7 @@ namespace Khalid.Core.Framework
         public virtual void OnAuthorization(AuthorizationFilterContext context)
         {
             var user = GetUserFromContext(context);
-            if (user == null || !context.HttpContext.RequestServices.GetRequiredService<IAuthenticatedUserService>().HasAnyPermission(Roles))
+            if (user == null || (Roles != null && Roles.Any() && !context.HttpContext.RequestServices.GetRequiredService<IAuthenticatedUserService>().HasAnyPermission(Roles)))
             {
                 context.HttpContext.Response.StatusCode = 401;
                 if (context.HttpContext.Request.Method.Equals("get", StringComparison.InvariantCultureIgnoreCase) &&
